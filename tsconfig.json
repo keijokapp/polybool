@@ -1,13 +1,12 @@
 {
   "compilerOptions": {
-    "target": "es2019",
-    "module": "esnext",
-    "allowJs": false,
+    "allowImportingTsExtensions": true,
+    "checkJs": true,
+    "exactOptionalPropertyTypes": true,
+    "module": "preserve",
     "noEmit": true,
-    "strict": true,
-    "moduleResolution": "node",
-    "allowSyntheticDefaultImports": true,
-    "esModuleInterop": true
+    "skipLibCheck": true,
+    "types": ["node"],
   },
-  "exclude": ["node_modules", "dist", "src/polybool.test.ts"]
+  "include": ["lib/*.js", "lib/*.ts", "*.js"]
 }
