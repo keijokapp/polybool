@@ -1,27 +1,20 @@
 {
-  "name": "@velipso/polybool",
-  "version": "2.0.11",
-  "description": "Boolean operations on polygons (union, intersection, difference, xor)",
-  "main": "dist/polybool.cjs",
-  "module": "dist/polybool.js",
-  "types": "dist/polybool.d.ts",
   "type": "module",
-  "exports": {
-    ".": {
-      "import": "./dist/polybool.js",
-      "require": "./dist/polybool.cjs"
-    }
-  },
+  "name": "@arbendium/polybool",
+  "version": "0.0.1",
+  "description": "Boolean operations on polygons (union, intersection, difference, xor)",
+  "exports": "./lib/polybool.js",
+  "files": [
+    "lib"
+  ],
   "scripts": {
-    "test": "tsx src/polybool.test.ts",
-    "build": "rollup -c && rollup -c rollup.config.cjs.js",
-    "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
-    "lint:fix": "eslint . --ext .js,.jsx,.ts,.tsx --fix",
-    "tsc": "tsc"
+    "lint": "eslint *.js lib",
+    "test": "node --test test.js",
+    "typecheck": "tsc"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/velipso/polybool.git"
+    "url": "git+https://github.com/arbendium/polybool.git"
   },
   "keywords": [
     "polygon",
@@ -38,28 +31,14 @@
   "author": "velipso",
   "license": "0BSD",
   "bugs": {
-    "url": "https://github.com/velipso/polybool/issues"
+    "url": "https://github.com/arbendium/polybool/issues"
   },
-  "homepage": "https://github.com/velipso/polybool#readme",
+  "homepage": "https://github.com/arbendium/polybool#readme",
   "devDependencies": {
-    "@rollup/plugin-node-resolve": "^15.2.3",
-    "@rollup/plugin-terser": "^0.4.4",
-    "@rollup/plugin-typescript": "^11.1.6",
-    "@typescript-eslint/eslint-plugin": "^6.21.0",
-    "eslint": "^8.57.0",
-    "eslint-config-prettier": "^9.1.0",
-    "eslint-config-standard-with-typescript": "^43.0.1",
-    "eslint-plugin-import": "^2.29.1",
-    "eslint-plugin-n": "^16.6.2",
-    "eslint-plugin-prettier": "^5.1.3",
-    "eslint-plugin-promise": "^6.1.1",
-    "prettier": "^3.2.5",
-    "rollup": "^4.13.0",
-    "rollup-plugin-dts": "^6.1.0",
-    "tsx": "^4.7.1",
-    "typescript": "^5.4.2"
-  },
-  "dependencies": {
-    "tslib": "^2.6.2"
+    "@arbendium/eslint-config-base": "^2.2.0",
+    "@types/node": "^26.1.2",
+    "eslint": "^9.39.5",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.65.0"
   }
 }
