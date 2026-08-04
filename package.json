@@ -36,6 +36,7 @@
   "homepage": "https://github.com/arbendium/polybool#readme",
   "devDependencies": {
     "@arbendium/eslint-config-base": "^2.2.0",
+    "@arbendium/zip": "^0.2.0",
     "@types/node": "^26.1.2",
     "eslint": "^9.39.5",
     "typescript": "^6.0.3",

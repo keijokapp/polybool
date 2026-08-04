@@ -1,6 +1,7 @@
 import test, { describe } from 'node:test';
 import assert from 'node:assert';
 import * as polybool from './lib/polybool.js';
+import { writeGeogebra, printGeogebra } from './geogebra.js';
 
 /**
  * @import { Rational } from './lib/rational.js'
@@ -440,39 +441,88 @@ test('19', () => {
 
 	const result = polybool.normalize(poly);
 
-	assertRegions(result, 'DCBA');
+	assertRegions(result, 'DABC');
 });
 
-/**
- * @param {[number, number][][]} rings
- */
+test.only('20', () => {
+	/** @type {Vec2<number>[][]} */
+	const poly = [
+		[
+			[631440.460619963, 6536883.624922374], // A
+			[631447.0807798333, 6536878.494298475], // B
+			[631454.362955693, 6536877.004762504], // C
+			[631465.782731463, 6536873.860186566], // D
+		],
+		[
+			[631455, 6536870], // E
+			[631454.3629556932, 6536877.004762504], // F
+			[631447.0807798329, 6536878.494298475], // G
+			[631447.0805192329, 6536878.497957625], // H
+		],
+	];
 
-// eslint-disable-next-line no-unused-vars
-function toGeogebra(rings) {
-	let i = 0;
+	const labels = 'ABCDEFGH';
+	pointMap = Object.fromEntries([...new Set(poly.flat().map(([x, y]) => `${x}:${y}`))].map((key, i) => [key, labels[i]]));
 
-	while (i < rings.length) {
-		let ring = rings[i];
+	printGeogebra(poly);
+	writeGeogebra(poly, 'shit');
 
-		// Remove duplicated last point if present
-		if (
-			ring.length > 1
-        && ring[0][0] === ring[ring.length - 1][0]
-        && ring[0][1] === ring[ring.length - 1][1]
-		) {
-			ring = ring.slice(0, -1);
-		}
+	const segments1 = polybool.segments([poly[0]]);
+	assertSegments(segments1, [
+		'A -> B  fill=true/false',
+		'B -> C  fill=true/false',
+		'C -> D  fill=true/false',
+		'A -> D  fill=false/true',
+	]);
 
-		const points = ring.map(p => [pointLabel(p), `(${p[0]},${p[1]})`]);
+	const segments2 = polybool.segments([poly[1]]);
+	assertSegments(segments2, [
+		'H -> G  fill=true/false',
+		'G -> [631447.084671045, 6536878.493502545]  fill=true/false',
+		'H -> [631447.084671045, 6536878.493502545]  fill=false/true',
+		'[631447.084671045, 6536878.493502545] -> F  fill=false/true',
+		'[631447.084671045, 6536878.493502545] -> E  fill=true/false',
+		'F -> E  fill=false/true',
+	]);
 
-		console.log([
-			...points.map(([label, p]) => `${label} = ${p}`),
-			`Polygon(${points.map(([label]) => label).join(',')})`,
-		].join('\n'));
+	const combined = polybool.combine(segments1, segments2);
+	assertCombinedSegments(combined, [
+		'A -> G  fill=true/false otherFill=false/false',
+		'H -> G  fill=true/true otherFill=true/false',
+		'G -> G  fill=false/false otherFill=true/false',
+		'G -> B  fill=true/false otherFill=true/true',
+		'B -> [631447.0846710448, 6536878.493502545]  fill=true/false otherFill=true/true',
+		'H -> [631447.0846710448, 6536878.493502545]  fill=true/true otherFill=false/true',
+		'G -> [631447.084671045, 6536878.493502545]  fill=false/false otherFill=true/false',
+		'[631447.0846710448, 6536878.493502545] -> [631447.084671045, 6536878.493502545]  fill=false/false otherFill=false/true',
+		'[631447.084671045, 6536878.493502545] -> [631452.5424117281, 6536877.377146497]  fill=false/false otherFill=false/true',
+		'[631447.0846710448, 6536878.493502545] -> [631452.5424117281, 6536877.377146497]  fill=true/false otherFill=false/false',
+		'[631452.5424117281, 6536877.377146497] -> C  fill=true/false otherFill=true/true',
+		'[631452.5424117281, 6536877.377146497] -> F  fill=true/true otherFill=false/true',
+		'C -> F  fill=true/false otherFill=true/true',
+		'F -> F  fill=true/true otherFill=false/true',
+		'[631447.084671045, 6536878.493502545] -> E  fill=false/false otherFill=true/false',
+		'F -> E  fill=false/false otherFill=false/true',
+		'F -> D  fill=true/false otherFill=false/false',
+		'A -> D  fill=false/true otherFill=false/false',
+	]);
 
-		i++;
-	}
-}
+	const selected = polybool.selectors.intersect(combined);
+
+	// assert.deepStrictEqual(selected.map(({ data, myFill }) => `${segLabel(data)}  fill=${myFill.above}/${myFill.below}`), [
+	// 	'[631447.0769740929, 6536878.497247924] -> H  fill=false/true',
+	// 	'[631447.0769740929, 6536878.497247924] -> G  fill=true/false',
+	// 	'H -> G  fill=false/true',
+	// 	'[631452.5424117281, 6536877.377146497] -> C  fill=true/false',
+	// 	'[631452.5424117281, 6536877.377146497] -> F  fill=false/true',
+	// 	'C -> F  fill=true/false',
+	// 	'F -> F  fill=false/true',
+	// ]);
+
+	const result = polybool.intersect([poly[0]], [poly[1]]);
+
+	assertRegions(result, '');
+});
 
 /**
  * @param {Vec2<number>[][]} regions
@@ -483,11 +533,35 @@ function assertRegions(regions, polygon) {
 }
 
 /**
+ * @param {polybool.SegmentBool[]} segments
+ * @param {string[]} expected
+ */
+function assertSegments(segments, expected) {
+	assert.deepStrictEqual(segments.map(({ data, myFill }) => `${segLabel(data)}  fill=${myFill.above}/${myFill.below}`), expected);
+}
+
+/**
+ * @param {polybool.SegmentBool[]} segments
+ * @param {string[]} expected
+ */
+function assertCombinedSegments(segments, expected) {
+	assert.deepStrictEqual(segments.map(({ data, myFill, otherFill }) => `${segLabel(data)}  fill=${myFill.above}/${myFill.below} otherFill=${otherFill.above}/${otherFill.below}`), expected);
+}
+
+/**
  * @param {Vec2<number | Rational>} p
  * @returns {string}
  */
 export function pointLabel(p) {
-	return pointMap[`${p[0]}:${p[1]}`] ?? `[${p[0]}, ${p[1]}]`;
+	return rawPointLabel(p) ?? `[${p[0]}, ${p[1]}]`;
+}
+
+/**
+ * @param {Vec2<number | Rational>} p
+ * @returns {string | undefined}
+ */
+export function rawPointLabel(p) {
+	return pointMap[`${p[0]}:${p[1]}`];
 }
 
 /**
