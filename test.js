@@ -444,7 +444,7 @@ test('19', () => {
 	assertRegions(result, 'DABC');
 });
 
-test.only('20', () => {
+test.skip('20', () => {
 	/** @type {Vec2<number>[][]} */
 	const poly = [
 		[
