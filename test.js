@@ -1,6 +1,7 @@
 import test, { describe } from 'node:test';
 import assert from 'node:assert';
 import * as polybool from './lib/polybool.js';
+import * as r from './lib/rational.js';
 import { writeGeogebra, printGeogebra } from './geogebra.js';
 
 /**
@@ -351,18 +352,18 @@ test('14', () => {
 
 	assert.deepStrictEqual(segments.map(({ data, myFill }) => `${segLabel(data)}  fill=${myFill.above}/${myFill.below}`), [
 		'A -> B  fill=false/true',
-		'D -> [6.46110515029315, 5.2103259270942095]  fill=true/false',
-		'B -> [6.46110515029315, 5.2103259270942095]  fill=false/true',
+		'D -> H  fill=true/false',
+		'B -> H  fill=false/true',
 		'D -> C  fill=false/true',
-		'[6.46110515029315, 5.2103259270942095] -> C  fill=true/false',
-		'[6.46110515029315, 5.2103259270942095] -> E  fill=false/true',
+		'H -> C  fill=true/false',
+		'H -> E  fill=false/true',
 		'A -> F  fill=true/false',
 		'E -> F  fill=false/true',
 	]);
 
 	const result = polybool.normalize(poly);
 
-	assertRegions(result, 'E[6.46110515029315, 5.2103259270942095]CD[6.46110515029315, 5.2103259270942095]BAF');
+	assertRegions(result, 'EHCDHBAF');
 });
 
 test('15', () => {
@@ -444,7 +445,7 @@ test('19', () => {
 	assertRegions(result, 'DABC');
 });
 
-test.skip('20', () => {
+test.only('20', () => {
 	/** @type {Vec2<number>[][]} */
 	const poly = [
 		[
@@ -461,8 +462,7 @@ test.skip('20', () => {
 		],
 	];
 
-	const labels = 'ABCDEFGH';
-	pointMap = Object.fromEntries([...new Set(poly.flat().map(([x, y]) => `${x}:${y}`))].map((key, i) => [key, labels[i]]));
+	setPointMap(poly); // J K, L
 
 	printGeogebra(poly);
 	writeGeogebra(poly, 'shit');
@@ -478,10 +478,10 @@ test.skip('20', () => {
 	const segments2 = polybool.segments([poly[1]]);
 	assertSegments(segments2, [
 		'H -> G  fill=true/false',
-		'G -> [631447.084671045, 6536878.493502545]  fill=true/false',
-		'H -> [631447.084671045, 6536878.493502545]  fill=false/true',
-		'[631447.084671045, 6536878.493502545] -> F  fill=false/true',
-		'[631447.084671045, 6536878.493502545] -> E  fill=true/false',
+		'G -> I  fill=true/false',
+		'H -> I  fill=false/true',
+		'I -> F  fill=false/true',
+		'I -> E  fill=true/false',
 		'F -> E  fill=false/true',
 	]);
 
@@ -491,33 +491,23 @@ test.skip('20', () => {
 		'H -> G  fill=true/true otherFill=true/false',
 		'G -> G  fill=false/false otherFill=true/false',
 		'G -> B  fill=true/false otherFill=true/true',
-		'B -> [631447.0846710448, 6536878.493502545]  fill=true/false otherFill=true/true',
-		'H -> [631447.0846710448, 6536878.493502545]  fill=true/true otherFill=false/true',
-		'G -> [631447.084671045, 6536878.493502545]  fill=false/false otherFill=true/false',
-		'[631447.0846710448, 6536878.493502545] -> [631447.084671045, 6536878.493502545]  fill=false/false otherFill=false/true',
-		'[631447.084671045, 6536878.493502545] -> [631452.5424117281, 6536877.377146497]  fill=false/false otherFill=false/true',
-		'[631447.0846710448, 6536878.493502545] -> [631452.5424117281, 6536877.377146497]  fill=true/false otherFill=false/false',
-		'[631452.5424117281, 6536877.377146497] -> C  fill=true/false otherFill=true/true',
-		'[631452.5424117281, 6536877.377146497] -> F  fill=true/true otherFill=false/true',
+		'B -> J  fill=true/false otherFill=true/true',
+		'H -> J  fill=true/true otherFill=false/true',
+		'G -> I  fill=false/false otherFill=true/false',
+		'J -> I  fill=false/false otherFill=false/true',
+		'I -> K  fill=false/false otherFill=false/true',
+		'J -> K  fill=true/false otherFill=false/false',
+		'K -> C  fill=true/false otherFill=true/true',
+		'K -> F  fill=true/true otherFill=false/true',
 		'C -> F  fill=true/false otherFill=true/true',
 		'F -> F  fill=true/true otherFill=false/true',
-		'[631447.084671045, 6536878.493502545] -> E  fill=false/false otherFill=true/false',
+		'I -> E  fill=false/false otherFill=true/false',
 		'F -> E  fill=false/false otherFill=false/true',
 		'F -> D  fill=true/false otherFill=false/false',
 		'A -> D  fill=false/true otherFill=false/false',
 	]);
 
 	const selected = polybool.selectors.intersect(combined);
-
-	// assert.deepStrictEqual(selected.map(({ data, myFill }) => `${segLabel(data)}  fill=${myFill.above}/${myFill.below}`), [
-	// 	'[631447.0769740929, 6536878.497247924] -> H  fill=false/true',
-	// 	'[631447.0769740929, 6536878.497247924] -> G  fill=true/false',
-	// 	'H -> G  fill=false/true',
-	// 	'[631452.5424117281, 6536877.377146497] -> C  fill=true/false',
-	// 	'[631452.5424117281, 6536877.377146497] -> F  fill=false/true',
-	// 	'C -> F  fill=true/false',
-	// 	'F -> F  fill=false/true',
-	// ]);
 
 	const result = polybool.intersect([poly[0]], [poly[1]]);
 
@@ -545,7 +535,27 @@ function assertSegments(segments, expected) {
  * @param {string[]} expected
  */
 function assertCombinedSegments(segments, expected) {
-	assert.deepStrictEqual(segments.map(({ data, myFill, otherFill }) => `${segLabel(data)}  fill=${myFill.above}/${myFill.below} otherFill=${otherFill.above}/${otherFill.below}`), expected);
+	assert.deepStrictEqual(segments.map(({ data, myFill, otherFill }) => `${segLabel(data)}  fill=${myFill.above}/${myFill.below} otherFill=${otherFill?.above}/${otherFill?.below}`), expected);
+}
+
+/**
+ * @param {Vec2<number>[][]} poly
+ */
+function setPointMap(poly) {
+	const coords = [...new Set(poly.flat().map(([x, y]) => `${r.rational(x)}:${r.rational(y)}`))];
+
+	pointMap = Object.fromEntries(coords.map((key, i) => [key, String.fromCharCode(65 + i)]));
+}
+
+/**
+ * @param {Vec2} coord
+ */
+export function addPoint(coord) {
+	const key = `${coord[0]}:${coord[1]}`;
+
+	if (!(key in pointMap)) {
+		pointMap[key] = String.fromCharCode(65 + Object.keys(pointMap).length);
+	}
 }
 
 /**
@@ -553,15 +563,14 @@ function assertCombinedSegments(segments, expected) {
  * @returns {string}
  */
 export function pointLabel(p) {
-	return rawPointLabel(p) ?? `[${p[0]}, ${p[1]}]`;
-}
+	const x = typeof p[0] === 'number' ? r.rational(p[0]) : p[0];
+	const y = typeof p[1] === 'number' ? r.rational(p[1]) : p[1];
 
-/**
- * @param {Vec2<number | Rational>} p
- * @returns {string | undefined}
- */
-export function rawPointLabel(p) {
-	return pointMap[`${p[0]}:${p[1]}`];
+	const label = pointMap[`${x}:${y}`];
+
+	assert(label != null);
+
+	return label;
 }
 
 /**

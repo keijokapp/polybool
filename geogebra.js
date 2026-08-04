@@ -3,7 +3,7 @@
 import Zip from '@arbendium/zip/zip';
 import { createWriteStream } from 'fs';
 import { pipeline } from 'stream/promises';
-import { pointLabel, rawPointLabel } from './test.js';
+import { pointLabel } from './test.js';
 
 /**
  * @typedef {[number, number]} Point
@@ -36,7 +36,6 @@ function buildXml(rings) {
 	const body = [];
 
 	let ringIndex = 0;
-	let pointCount = 0;
 
 	for (const rawRing of rings) {
 		const ring = openRing(rawRing);
@@ -52,9 +51,8 @@ function buildXml(rings) {
 		/** @type {string[]} */
 		const pointLabels = [];
 
-		// eslint-disable-next-line no-loop-func
 		ring.forEach(([x, y]) => {
-			const label = rawPointLabel([x, y]) ?? `P${++pointCount}`;
+			const label = pointLabel([x, y]);
 			pointLabels.push(label);
 
 			body.push(
