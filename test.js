@@ -417,6 +417,32 @@ test('16', () => {
 	assertRegions(result, 'ADCBEF');
 });
 
+test('19', () => {
+	/** @type {Vec2<number>[][]} */
+	const poly = [[
+		[591147.8506046718, 6482374.0560854785], // A
+		[591200.6463796443, 6482373.063060548], // B
+		[591214.8958173788, 6482371.659311935], // C
+		[591200.6463796222, 6482373.063061498], // D
+	]];
+
+	const labels = 'ABCD';
+	pointMap = Object.fromEntries([...new Set(poly.flat().map(([x, y]) => `${x}:${y}`))].map((key, i) => [key, labels[i]]));
+
+	const segments = polybool.segments(poly);
+
+	assert.deepStrictEqual(segments.map(({ data, myFill }) => `${segLabel(data)}  fill=${myFill.above}/${myFill.below}`), [
+		'A -> D  fill=false/true',
+		'A -> B  fill=true/false',
+		'B -> C  fill=true/false',
+		'D -> C  fill=false/true',
+	]);
+
+	const result = polybool.normalize(poly);
+
+	assertRegions(result, 'DCBA');
+});
+
 /**
  * @param {[number, number][][]} rings
  */
