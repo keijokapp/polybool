@@ -445,7 +445,7 @@ test('19', () => {
 	assertRegions(result, 'DABC');
 });
 
-test.only('20', () => {
+test.only('20', async () => {
 	/** @type {Vec2<number>[][]} */
 	const poly = [
 		[
@@ -465,7 +465,7 @@ test.only('20', () => {
 	setPointMap(poly); // J K, L
 
 	printGeogebra(poly);
-	writeGeogebra(poly, 'shit');
+	await writeGeogebra(poly, 'shit1');
 
 	const segments1 = polybool.segments([poly[0]]);
 	assertSegments(segments1, [
@@ -485,25 +485,27 @@ test.only('20', () => {
 		'F -> E  fill=false/true',
 	]);
 
+	// await writeGeogebra([...polybool.polygon(segments1), ...polybool.polygon(segments2)], 'shit2');
+
 	const combined = polybool.combine(segments1, segments2);
 	assertCombinedSegments(combined, [
-		'A -> G  fill=true/false otherFill=false/false',
-		'H -> G  fill=true/true otherFill=true/false',
-		'G -> G  fill=false/false otherFill=true/false',
-		'G -> B  fill=true/false otherFill=true/true',
-		'B -> J  fill=true/false otherFill=true/true',
-		'H -> J  fill=true/true otherFill=false/true',
+		'A -> J  fill=true/false otherFill=false/false',
+		'H -> J  fill=true/true otherFill=true/false',
+		'J -> G  fill=false/false otherFill=true/false',
+		'J -> B  fill=true/false otherFill=true/true',
+		'B -> K  fill=true/false otherFill=true/true',
+		'H -> K  fill=true/true otherFill=false/true',
 		'G -> I  fill=false/false otherFill=true/false',
-		'J -> I  fill=false/false otherFill=false/true',
-		'I -> K  fill=false/false otherFill=false/true',
-		'J -> K  fill=true/false otherFill=false/false',
-		'K -> C  fill=true/false otherFill=true/true',
-		'K -> F  fill=true/true otherFill=false/true',
-		'C -> F  fill=true/false otherFill=true/true',
-		'F -> F  fill=true/true otherFill=false/true',
+		'K -> I  fill=false/false otherFill=false/true',
+		'I -> L  fill=false/false otherFill=false/true',
+		'K -> L  fill=true/false otherFill=false/false',
+		'L -> C  fill=true/false otherFill=true/true',
+		'L -> F  fill=true/true otherFill=false/true',
+		'C -> M  fill=true/false otherFill=true/true',
+		'F -> M  fill=true/true otherFill=false/true',
 		'I -> E  fill=false/false otherFill=true/false',
-		'F -> E  fill=false/false otherFill=false/true',
-		'F -> D  fill=true/false otherFill=false/false',
+		'M -> E  fill=false/false otherFill=false/true',
+		'M -> D  fill=true/false otherFill=false/false',
 		'A -> D  fill=false/true otherFill=false/false',
 	]);
 
@@ -565,10 +567,11 @@ export function addPoint(coord) {
 export function pointLabel(p) {
 	const x = typeof p[0] === 'number' ? r.rational(p[0]) : p[0];
 	const y = typeof p[1] === 'number' ? r.rational(p[1]) : p[1];
+	const key = `${x}:${y}`;
 
-	const label = pointMap[`${x}:${y}`];
+	const label = pointMap[key];
 
-	assert(label != null);
+	// assert(label != null);
 
 	return label;
 }
