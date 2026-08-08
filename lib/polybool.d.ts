@@ -1,7 +1,8 @@
 export class Rational {
 	readonly n: bigint
 	readonly d: bigint
-	constructor(n: bigint, d: bigint)
+	readonly f: float
+	constructor(n: bigint, d: bigint, f: number)
 	valueOf(): number
 }
 export type Vec2<T extends number | Rational = Rational> = [T, T]
