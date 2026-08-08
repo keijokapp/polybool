@@ -93,8 +93,8 @@ const cleaned = polybool.polygon(polybool.segments(polygon)); // granular API
 
 The above example preserves the mathematical accuracy to the highest possible degree, rounding only
 the intersection points to their closest representable floating point values. To simplify the
-polygon further, ie remove vertices that almost but not really collinear with their neighbors, use
-the `epsilon` parameter:
+polygon further, ie remove vertices that are almost but not really collinear with their neighbors,
+use the `epsilon` parameter.
 
 ```typescript
 const cleaned = polybool.normalize(polygon, 2 ** 12);
@@ -106,19 +106,20 @@ const cleaned = polybool.polygon(polybool.segments(polygon), 2 ** 12);
 This libary aims for deterministic and mathematically perfect behavior and results, ie no excess
 rounding errors or glitching out on non-conventaionl polygon inputs.
 
-Normally polygon clipping libraries suffer from a myriad of issues related to numerical accuracy of
-IEEE754 floating point calculations. They try to overcome it by using a user-provided _epsilon_
-value when comparing values (coordinates and determinants). The fundamental problem with this
-approach is that a single epsilon value (the largest possbile error, exclusive) is really only
+Polygon clipping libraries typically suffer from a myriad of issues related to numerical accuracy of
+IEEE754 floating point calculations. They try to overcome these issues by using a user-provided
+_epsilon_ value when comparing values (coordinates and determinants). The fundamental problem with
+this approach is that a single epsilon value (the largest possbile error, exclusive) is really only
 applicable to a specific number (depending on its scale) or calculation (depending on the operation
-and epsilons of its inputs). Finding an epsilon for each input and keeping track of them during
-calculations is too difficult so libraries typically use only the one that user provided. This
-results in thom being prone to throwing errors and outputting garbage (disconnected or missing
-segments), sometimes even on simple-looking input polygons.
+and epsilons of its inputs). Libraries could infer the epsilon for each number and adjust it during
+calculations but then they may as well keep track of the error itself and correct for it when
+needed. This is so complicated that libraries generally don't do that and instead use only a single
+user-provided epsilon. This results in them being prone to throwing errors and outputting garbage
+(disconnected or missing segments), sometimes even on simple-looking input polygons.
 
-This library does only exact math on rational numbers composed of bigints. That trades the numerical
-accuracy problem for somewhat higher memory and compute usage. The optional `epsilon` parameter is
-used only for output simplification.
+This library avoids numerical accuracy issues by doing only exact math on rational numbers composed
+of bigints. That trades the numerical accuracy problem for somewhat higher memory and compute usage.
+The optional `epsilon` parameter is used only for output simplification.
 
 However, since the inputs and outputs are still floats, a few specifics need to be clear:
 
